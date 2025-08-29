@@ -9,10 +9,14 @@
     "strict": true,
     "isolatedModules": true,
     "verbatimModuleSyntax": true,
+    
 
     "esModuleInterop": true,
     "skipLibCheck": true,
+    "noEmit": true,
+    "allowImportingTsExtensions": true
+
   },
   "exclude": ["dist/"],
-  "include": ["src"]
+  "include": ["src", ".", "lynx.d.ts", "rspeedy-env.d.ts"]
 }

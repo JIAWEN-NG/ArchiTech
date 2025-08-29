@@ -13,6 +13,7 @@ declare namespace JSX {
     text: LynxBaseProps;
     image: LynxBaseProps;
     'text-input': LynxBaseProps;
+    'scroll-view': LynxBaseProps;
     button: LynxBaseProps;
   }
 }

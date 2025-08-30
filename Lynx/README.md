@@ -1,5 +1,3 @@
-Got it 👍 Here’s the full combined README.md with your original Lynx instructions plus backend (Python FastAPI + Node.js service), APIs, features, and everything else in one file:
-
 # Rspeedy Project
 
 This is a **ReactLynx** project bootstrapped with `create-rspeedy`.
@@ -141,6 +139,3 @@ Demo video files stored in /uploads
 Mock captions with emojis & hashtags for testing
 
 Typography: Tailwind defaults + Google Fonts
-
-🎥 Demo
-👉 [Insert YouTube Link Here]

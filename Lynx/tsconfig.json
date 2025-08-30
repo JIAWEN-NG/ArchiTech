@@ -2,14 +2,19 @@
   "compilerOptions": {
     "jsx": "react-jsx",
     "jsxImportSource": "@lynx-js/react",
-
+    "target": "ES2022",
+    "lib": ["ES2022"],
     "module": "node18",
     "moduleResolution": "node16",
-
+    "rootDir": "./src",
+    "outDir": "./dist",
     "strict": true,
     "isolatedModules": true,
     "verbatimModuleSyntax": true,
-    
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true,
+    "declaration": false,    
 
     "esModuleInterop": true,
     "skipLibCheck": true,
@@ -18,5 +23,11 @@
 
   },
   "exclude": ["dist/"],
-  "include": ["src", ".", "lynx.d.ts", "rspeedy-env.d.ts"]
+  "include": ["src", ".", "lynx.d.ts", "rspeedy-env.d.ts"],
+   "ts-node": {
+    "esm": false,
+    "compilerOptions": {
+      "module": "CommonJS"
+    }
+   }
 }

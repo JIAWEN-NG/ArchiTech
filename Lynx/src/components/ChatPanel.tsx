@@ -84,7 +84,7 @@ export default function ChatPanel(props: {
         </view>
 
         {/* Messages */}
-        <scroll-view ref={scrollRef} scroll-y style={{ flex: 1, padding: "12px", paddingBottom: "120px" }}>
+        <scroll-view ref={scrollRef} scroll-y style={{ flex: "1", padding: "12px", paddingBottom: "120px" }}>
           {messages.map((msg, idx) => (
             <view
               key={idx}
@@ -102,67 +102,66 @@ export default function ChatPanel(props: {
             </view>
           ))}
 
-        {/* Pending suggestion */}
-        {pendingSuggestion && (
-          <view
-            style={{
-              background: "#E1F5FE",
-              padding: "12px 16px",
-              borderRadius: "20px",
-              marginBottom: "8px",
-              maxWidth: "75%",
-              alignSelf: "flex-start",
-            }}
-          >
-            <text style={{ fontSize: "16px", color: "#000" }}>
-              {pendingSuggestion} (AI suggestion)
-            </text>
-
-            {/* Button row */}
+          {/* Pending suggestion */}
+          {pendingSuggestion && (
             <view
               style={{
-                display: "flex",            // 👈 force flexbox
-                flexDirection: "row",       // 👈 horizontal layout
-                justifyContent: "flex-start",
-                alignItems: "center",
-                marginTop: "8px",
+                background: "#E1F5FE",
+                padding: "12px 16px",
+                borderRadius: "20px",
+                marginBottom: "8px",
+                maxWidth: "75%",
+                alignSelf: "flex-start",
               }}
             >
-              <view
-                bindtap={approveSuggestion}
-                style={{
-                  background: "#25D366",
-                  padding: "10px 16px",
-                  borderRadius: "20px",
-                  marginRight: "12px",      // 👈 space between buttons
-                }}
-              >
-                <text style={{ fontSize: "16px", fontWeight: "bold", color: "#fff" }}>
-                  Approve
-                </text>
-              </view>
+              <text style={{ fontSize: "16px", color: "#000" }}>
+                {pendingSuggestion} (AI suggestion)
+              </text>
 
+              {/* Button row */}
               <view
-                bindtap={editSuggestion}
                 style={{
-                  background: "#ff2d55",
-                  padding: "10px 16px",
-                  borderRadius: "20px",
+                  display: "flex",
+                  flexDirection: "row",
+                  justifyContent: "flex-start",
+                  alignItems: "center",
+                  marginTop: "8px",
                 }}
               >
-                <text style={{ fontSize: "16px", fontWeight: "bold", color: "#fff" }}>
-                  Edit
-                </text>
+                <view
+                  bindtap={approveSuggestion}
+                  style={{
+                    background: "#25D366",
+                    padding: "10px 16px",
+                    borderRadius: "20px",
+                    marginRight: "12px",
+                  }}
+                >
+                  <text style={{ fontSize: "16px", fontWeight: "bold", color: "#fff" }}>
+                    Approve
+                  </text>
+                </view>
+
+                <view
+                  bindtap={editSuggestion}
+                  style={{
+                    background: "#ff2d55",
+                    padding: "10px 16px",
+                    borderRadius: "20px",
+                  }}
+                >
+                  <text style={{ fontSize: "16px", fontWeight: "bold", color: "#fff" }}>
+                    Edit
+                  </text>
+                </view>
               </view>
             </view>
-          </view>
-        )}
-
+          )}
         </scroll-view>
 
         {/* Composer row */}
         <view style={{
-          position: "fixed", left: 0, right: 0, bottom: 0, padding: "16px",
+          position: "fixed", left: "0px", right: "0px", bottom: "0px", padding: "16px",
           background: "#F0F0F0", borderTopWidth: "1px", borderTopColor: "#ccc",
           display: "flex", flexDirection: "row", alignItems: "center"
         }}>
@@ -173,7 +172,7 @@ export default function ChatPanel(props: {
             bindinput={(e) => setInputValue(e.detail.value)}
             bindconfirm={sendMessage}
             style={{
-              flex: 1,
+              flex: "1",
               background: "#fff",
               padding: "10px",
               borderRadius: "20px",

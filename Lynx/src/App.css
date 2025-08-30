@@ -20,6 +20,16 @@
   transform: rotate(15.25deg);
 }
 
+<<<<<<< Updated upstream
+=======
+/* Container for pages to avoid overlapping status bar */
+.PageContainer {
+  width: 100%;
+  padding-top: 20px; /* extra spacing below status bar */
+}
+
+/* Home page wrapper */
+>>>>>>> Stashed changes
 .App {
   position: relative;
   min-height: 100vh;

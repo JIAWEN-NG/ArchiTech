@@ -25,6 +25,7 @@ export function App() {
 
   if (page === 'aiChat') {
     return (
+<<<<<<< Updated upstream
       <view style={{ flex: 1 }}>
         {/* Back button */}
         <view
@@ -41,6 +42,16 @@ export function App() {
           <text style={{ color: '#fff', fontWeight: 'bold', textAlign: 'center' }}>
             Back
           </text>
+=======
+      <view className='Background'>
+        <view className='PageContainer'>
+          <view bindtap={goBack} className='BackButton'>
+            <text>Back</text>
+          </view>
+          <ChatPanel onBack={function (): void {
+            throw new Error('Function not implemented.')
+          } } />
+>>>>>>> Stashed changes
         </view>
 
         {/* Your ChatPanel component */}

@@ -1,120 +1,131 @@
-import { useState, useCallback, useEffect } from "@lynx-js/react";
-import "../PersonalizedPage.css"; // Reuse dark mobile theme styles
+import { useState, useRef, useEffect, useCallback } from "@lynx-js/react";
 
-export function ChatPanel() {
+export function ChatPanel(props: { onBack: () => void }) {
   const [messages, setMessages] = useState<{ text: string; from: "user" | "bot" }[]>([
     { text: "Hello! How can I help you today?", from: "bot" },
   ]);
   const [inputValue, setInputValue] = useState("");
-  const [suggestions] = useState(["Hi!", "Tell me a joke", "What's the weather?"]);
+
+  const scrollRef = useRef<any>(null);
 
   useEffect(() => {
-    console.info("AI Chat Loaded");
-  }, []);
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [messages]);
 
   const sendMessage = useCallback(() => {
-    if (!inputValue.trim()) return;
+    const text = inputValue.trim();
+    if (!text) return;
 
-    const userMsg = { text: inputValue, from: "user" } as const;
+    const userMsg = { text, from: "user" } as const;
     setMessages((prev) => [...prev, userMsg]);
     setInputValue("");
 
-    // Simulate bot reply
     setTimeout(() => {
       const botMsg = { text: "Bot reply: " + userMsg.text, from: "bot" } as const;
       setMessages((prev) => [...prev, botMsg]);
     }, 1000);
   }, [inputValue]);
 
-  const onSuggestionClick = useCallback((s: string) => setInputValue(s), []);
-
   return (
-    <view className="PageBackground">
-      {/* Header */}
-      <view className="PageHeader">
-        <text className="PageTitle">AI Chat</text>
-        <text className="PageSubtitle">Chat with your AI assistant</text>
-      </view>
-
-      {/* Messages List */}
-      <scroll-view
-        scroll-orientation="vertical"
-        className="SuggestionsWrapper"
-        style={{ padding: "6px" }}
-      >
-        {messages.map((msg, idx) => (
-          <view
-            key={idx}
-            className="MessageBubble"
-            style={{
-              background: msg.from === "user" ? "#d4f1c5" : "#f0f0f0",
-              color: "#000",
-              padding: "10px 14px",
-              borderRadius: "16px",
-              marginBottom: "6px",
-              maxWidth: "70%",
-              marginLeft: msg.from === "user" ? "auto" : "0",
-              marginRight: msg.from === "user" ? "0" : "auto",
-              boxShadow: "0 2px 4px rgba(0,0,0,0.15)",
-            }}
-          >
-            <text>{msg.text}</text>
-          </view>
-        ))}
-      </scroll-view>
-
-      {/* Suggestions Chips */}
-      <view
-        className="SuggestionsWrapper"
-        style={{ flexDirection: "row", flexWrap: "wrap", gap: "4px", padding: "4px" }}
-      >
-        {suggestions.map((s, i) => (
-          <view
-            key={i}
-            className="ActionBtn"
-            style={{
-              background: "#e0e0e0",
-              padding: "6px 10px",
-              borderRadius: "20px",
-            }}
-            bindtap={() => onSuggestionClick(s)}
-          >
-            <text style={{ color: "#000" }}>{s}</text>
-          </view>
-        ))}
-      </view>
-
-      {/* Input + Send */}
-      <view
-        className="ActionBtn"
-        style={{ flexDirection: "row", gap: "4px", marginTop: "8px" }}
-      >
+    <page>
+      <view className="PageBackground"> {/* Dark background */}
+        {/* Header */}
         <view
-          className="SuggestionsWrapper"
           style={{
-            flex: 1,
-            background: "#f0f0f0",
-            padding: "8px",
-            borderRadius: "20px",
+            padding: "12px 16px",
+            background: "#eee", // same as Back button
+            flexDirection: "column",
           }}
-          bindtap={() => setInputValue(prompt("Type your message:") || "")}
         >
-          <text style={{ color: "#000" }}>{inputValue || "Type your message..."}</text>
+          <text style={{ color: "#000", fontSize: "18px", fontWeight: "bold" }}>AI Chat</text>
+          <text style={{ color: "#000", fontSize: "14px" }}>Chat with your AI assistant</text>
         </view>
+
+        {/* Messages list */}
+        <scroll-view
+          ref={scrollRef}
+          scroll-orientation="vertical"
+          style={{ flex: 1, padding: "12px", paddingBottom: "80px" }}
+        >
+          {messages.map((msg, idx) => (
+            <view
+              key={idx}
+              style={{
+                background: msg.from === "user" ? "#25D366" : "#1E1E1E",
+                color: msg.from === "user" ? "#fff" : "#fff",
+                alignSelf: msg.from === "user" ? "flex-end" : "flex-start",
+                padding: "10px 14px",
+                borderRadius: "20px",
+                marginBottom: "8px",
+                maxWidth: "75%",
+                boxShadow: "0 2px 4px rgba(0,0,0,0.5)",
+              }}
+            >
+              <text style={{ fontSize: "15px", color: msg.from === "user" ? "#fff" : "#fff" }}>
+                {msg.text}
+              </text>
+            </view>
+          ))}
+        </scroll-view>
+
+        {/* Composer row */}
         <view
-          className="ActionBtn"
           style={{
-            background: "#4CAF50",
-            padding: "8px 16px",
-            borderRadius: "20px",
-            justifyContent: "center",
+            position: "fixed",
+            left: 0,
+            right: 0,
+            bottom: 0,
+            padding: 12,
+            background: "#1F1F1F",
+            borderTopWidth: 1,
+            borderTopColor: "#333",
+
+            display: "flex",
+            flexDirection: "row",
             alignItems: "center",
           }}
-          bindtap={sendMessage}
         >
-          <text style={{ color: "#fff", fontWeight: "bold" }}>Send</text>
+          {/* Typing input */}
+          <input
+            type="text"
+            value={inputValue}
+            placeholder="Type a message..."
+            bindinput={(e) => setInputValue(e.detail.value)}
+            style={{
+              flex: 1,               // take remaining space
+              background: "#2C2C2C",
+              padding: "14px 18px",
+              borderRadius: 30,
+              fontSize: 30,
+              color: "#fff",
+              marginRight: 10,
+              minHeight: 50,         // taller input
+            }}
+            bindconfirm={sendMessage}
+          />
+
+          {/* Send button */}
+          <view
+            bindtap={sendMessage}
+            style={{
+              width: 60,             // bigger button
+              height: 60,
+              background: "#25D366",
+              borderRadius: 30,      // perfect circle
+              justifyContent: "center",
+              alignItems: "center",
+              minWidth: 60,
+              minHeight: 60,
+            }}
+          >
+            <text style={{ color: "#fff", fontWeight: "bold", fontSize: 24 }}>➤</text>
+          </view>
         </view>
+
+
       </view>
-    </view>
+    </page>
   );
 }

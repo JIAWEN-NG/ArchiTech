@@ -24,7 +24,9 @@ export function App(props: { onRender?: () => void }) {
           <view bindtap={goBack} className='BackButton'>
             <text>Back</text>
           </view>
-          <ChatPanel />
+          <ChatPanel onBack={function (): void {
+            throw new Error('Function not implemented.')
+          } } />
         </view>
       </view>
     )

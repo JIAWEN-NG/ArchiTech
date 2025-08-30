@@ -127,7 +127,7 @@ export function CaptionPreview() {
             className={`NavButton ${currentIndex === 0 ? 'NavButtonDisabled' : ''}`}
             bindtap={goToPrev}
           >
-            <text>‹</text>
+            <text></text>
           </view>
           
           <view className='PageIndicator'>
@@ -138,7 +138,7 @@ export function CaptionPreview() {
             className={`NavButton ${currentIndex === mockCaptions.length - 1 ? 'NavButtonDisabled' : ''}`}
             bindtap={goToNext}
           >
-            <text>›</text>
+            <text></text>
           </view>
         </view>
 

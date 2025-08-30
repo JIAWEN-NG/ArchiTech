@@ -92,7 +92,7 @@ export function App(props: { onRender?: () => void }) {
 
             {/* TikTok-style Caption Preview button */}
             <view className='Button' style={{ backgroundColor: '#ff6b6b' }} bindtap={goToCaptionPreview}>
-              <text>📱 Caption Preview (TikTok Style)</text>
+              <text>Caption Preview</text>
             </view>
 
             <view className='Button' bindtap={goToAIChat}>

@@ -1,0 +1,87 @@
+.PageBackground {
+  background: linear-gradient(135deg, #1c1c1c, #0a0a0a);
+  padding-top: 16px;
+  min-height: 100vh;
+  font-family: Arial, sans-serif;
+  color: #fff; /* fallback color */
+}
+
+.PageHeader {
+  margin-bottom: 24px;
+  position: relative;
+}
+
+.PageTitle {
+  font-size: 26px;
+  font-weight: bold;
+  color: #ff2d55 !important; /* force color */
+}
+
+.PageSubtitle {
+  font-size: 16px;
+  color: #ffffffcc !important; /* force color */
+  margin-top: 6px;
+}
+
+.SuggestionsWrapper {
+  padding-top: 8px;
+  display: flex;
+  flex-direction: column;
+}
+
+.SuggestionCard {
+  background: #222;
+  color: #fff !important; /* force white text */
+  padding: 18px;
+  margin: 12px 0;
+  border-radius: 16px;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.SuggestionCard:hover {
+  transform: scale(1.02);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+}
+
+.SuggestionCard.Selected {
+  border: 2px solid #ff2d55;
+}
+
+.Caption {
+  font-size: 18px;
+  margin-bottom: 12px;
+  color: #fff !important; /* force white text */
+}
+
+.AnalyticsRow {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  color: #ffffffcc !important; /* force light text */
+  margin-bottom: 12px;
+}
+
+.ActionBtn {
+  background: #ff2d55;
+  padding: 10px;
+  border-radius: 14px;
+  text-align: center;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.ActionBtn:hover {
+  transform: scale(1.05);
+}
+
+.ActionBtn text {
+  color: #fff !important; /* force white text */
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.Analytics {
+  color: #fff; /* make text white */
+}

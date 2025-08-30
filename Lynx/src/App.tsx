@@ -9,7 +9,7 @@ import { CaptionPreview } from './components/CaptionPreview.tsx'
 
 export function App(props: { onRender?: () => void }) {
   // Current page state
-  const [page, setPage] = useState<'home' | 'aiChat' | 'personalized' | 'dev' | 'captionPreview'>('home');
+  const [page, setPage] = useState<'home' | 'aiChat' | 'personalized'  | 'captionPreview'>('home');
 
   // Store approved captions from ChatPanel
   const [approvedCaptions, setApprovedCaptions] = useState<{ text: string }[]>([]);
@@ -19,9 +19,12 @@ export function App(props: { onRender?: () => void }) {
   // Navigation callbacks
   const goToAIChat = useCallback(() => setPage('aiChat'), []);
   const goToPersonalized = useCallback(() => setPage('personalized'), []);
-  const goToDev = useCallback(() => setPage('dev'), []);
+ // const goToDev = useCallback(() => setPage('dev'), []);
   const goToCaptionPreview = useCallback(() => setPage('captionPreview'), []) 
   const goBack = useCallback(() => setPage('home'), []);
+
+  // as no login implemented pass in dummy creatorId value 
+  const currentCreatorId = "creator_fitness";
 
   // --- AI Chat Page ---
   if (page === 'aiChat') {
@@ -58,7 +61,7 @@ export function App(props: { onRender?: () => void }) {
 
           {/* Pass approved captions to display on PersonalizedPage */}
           <PersonalizedPage
-            creatorId="creator_001"
+            creatorId={currentCreatorId}
             approvedCaptions={approvedCaptions}
           />
         </view>
@@ -85,19 +88,19 @@ export function App(props: { onRender?: () => void }) {
     )
   }
 
-  // --- Developer Tools Page ---
-  if (page === 'dev') {
-    return (
-      <view className='Background'>
-        <view className='PageContainer'>
-          <view bindtap={goBack} className='BackButton'>
-            <text>Back</text>
-          </view>
-          <SuggestionsDevPanel />
-        </view>
-      </view>
-    );
-  }
+  // // --- Developer Tools Page ---
+  // if (page === 'dev') {
+  //   return (
+  //     <view className='Background'>
+  //       <view className='PageContainer'>
+  //         <view bindtap={goBack} className='BackButton'>
+  //           <text>Back</text>
+  //         </view>
+  //         <SuggestionsDevPanel />
+  //       </view>
+  //     </view>
+  //   );
+  // }
 
   // --- Home Page ---
   return (
@@ -123,9 +126,10 @@ export function App(props: { onRender?: () => void }) {
               <text>Go to Personalized Suggestions</text>
             </view>
 
-            <view className='Button' style={{ backgroundColor: '#6c757d' }} bindtap={goToDev}>
+            {/*test debugger */}
+            {/* <view className='Button' style={{ backgroundColor: '#6c757d' }} bindtap={goToDev}>
               <text>Developer Tools</text>
-            </view>
+            </view> */}
           </view>
         </view>
       </view>

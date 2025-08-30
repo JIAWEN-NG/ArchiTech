@@ -1,7 +1,7 @@
 import { useState, useCallback } from '@lynx-js/react'
 import './App.css'
 
-// Import pages
+// Pages
 import PersonalizedPage from './components/PersonalizedPage.tsx'
 import { ChatPanel } from './components/ChatPanel.js'
 import { SuggestionsDevPanel } from './components/SuggestionsDevPanel.tsx'
@@ -24,9 +24,7 @@ export function App(props: { onRender?: () => void }) {
           <view bindtap={goBack} className='BackButton'>
             <text>Back</text>
           </view>
-          <ChatPanel onBack={function (): void {
-            throw new Error('Function not implemented.')
-          } } />
+          <ChatPanel onBack={goBack} />
         </view>
       </view>
     )
@@ -40,7 +38,8 @@ export function App(props: { onRender?: () => void }) {
           <view bindtap={goBack} className='BackButton'>
             <text>Back</text>
           </view>
-          <PersonalizedPage />
+          {/* Pass creatorId prop */}
+          <PersonalizedPage creatorId="creator_001" />
         </view>
       </view>
     )
@@ -71,17 +70,14 @@ export function App(props: { onRender?: () => void }) {
               Generate captions and trend insights instantly!
             </text>
 
-            {/* AI Chat Button */}
             <view className='Button' bindtap={goToAIChat}>
               <text>Go to AI Chat</text>
             </view>
 
-            {/* Personalized Suggestions Button */}
             <view className='Button' bindtap={goToPersonalized}>
               <text>Go to Personalized Suggestions</text>
             </view>
 
-            {/* Developer Tools Button */}
             <view className='Button' style={{ backgroundColor: '#6c757d' }} bindtap={goToDev}>
               <text>Developer Tools</text>
             </view>

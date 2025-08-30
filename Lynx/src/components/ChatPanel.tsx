@@ -22,6 +22,7 @@ export function ChatPanel(props: { onBack: () => void }) {
     setMessages((prev) => [...prev, userMsg]);
     setInputValue("");
 
+    // Simulate Bot Response for Backend Integration AI API Call
     setTimeout(() => {
       const botMsg = { text: "Bot reply: " + userMsg.text, from: "bot" } as const;
       setMessages((prev) => [...prev, botMsg]);

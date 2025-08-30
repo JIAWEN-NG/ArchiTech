@@ -1,33 +1,48 @@
-import { useState, useCallback } from '@lynx-js/react'
-import './App.css'
+import { useState, useCallback } from '@lynx-js/react';
+import './App.css';
 
 // Pages
-import PersonalizedPage from './components/PersonalizedPage.tsx'
-import { ChatPanel } from './components/ChatPanel.js'
-import { SuggestionsDevPanel } from './components/SuggestionsDevPanel.tsx'
+import PersonalizedPage from './components/PersonalizedPage.tsx';
+import ChatPanel from './components/ChatPanel.js'; // default export
+import { SuggestionsDevPanel } from './components/SuggestionsDevPanel.tsx';
 
 export function App(props: { onRender?: () => void }) {
-  const [page, setPage] = useState<'home' | 'aiChat' | 'personalized' | 'dev'>('home')
+  // Current page state
+  const [page, setPage] = useState<'home' | 'aiChat' | 'personalized' | 'dev'>('home');
 
-  props.onRender?.()
+  // Store approved captions from ChatPanel
+  const [approvedCaptions, setApprovedCaptions] = useState<{ text: string }[]>([]);
 
-  const goToAIChat = useCallback(() => setPage('aiChat'), [])
-  const goToPersonalized = useCallback(() => setPage('personalized'), [])
-  const goToDev = useCallback(() => setPage('dev'), [])
-  const goBack = useCallback(() => setPage('home'), [])
+  props.onRender?.();
+
+  // Navigation callbacks
+  const goToAIChat = useCallback(() => setPage('aiChat'), []);
+  const goToPersonalized = useCallback(() => setPage('personalized'), []);
+  const goToDev = useCallback(() => setPage('dev'), []);
+  const goBack = useCallback(() => setPage('home'), []);
 
   // --- AI Chat Page ---
   if (page === 'aiChat') {
     return (
       <view className='Background'>
         <view className='PageContainer'>
+          {/* Back button */}
           <view bindtap={goBack} className='BackButton'>
             <text>Back</text>
           </view>
-          <ChatPanel onBack={goBack} />
+
+          {/* ChatPanel */}
+          <ChatPanel
+            onBack={goBack}
+            // Send approved messages to App state and navigate to Personalized Page
+            onNewBotMessage={(msg) => {
+              setApprovedCaptions(prev => [...prev, msg]);
+              setPage('personalized'); // <- automatic navigation after approve
+            }}
+          />
         </view>
       </view>
-    )
+    );
   }
 
   // --- Personalized Suggestions Page ---
@@ -38,11 +53,15 @@ export function App(props: { onRender?: () => void }) {
           <view bindtap={goBack} className='BackButton'>
             <text>Back</text>
           </view>
-          {/* Pass creatorId prop */}
-          <PersonalizedPage creatorId="creator_001" />
+
+          {/* Pass approved captions to display on PersonalizedPage */}
+          <PersonalizedPage
+            creatorId="creator_001"
+            approvedCaptions={approvedCaptions}
+          />
         </view>
       </view>
-    )
+    );
   }
 
   // --- Developer Tools Page ---
@@ -56,7 +75,7 @@ export function App(props: { onRender?: () => void }) {
           <SuggestionsDevPanel />
         </view>
       </view>
-    )
+    );
   }
 
   // --- Home Page ---
@@ -85,5 +104,5 @@ export function App(props: { onRender?: () => void }) {
         </view>
       </view>
     </view>
-  )
+  );
 }

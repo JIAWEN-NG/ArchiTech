@@ -26,8 +26,4 @@ declare module '@lynx-js/types' {
   }
 }
 
-<<<<<<< Updated upstream
 export {}; // ensure this file is treated as a module
-=======
-export {}; // ensure this file is treated as a module
->>>>>>> Stashed changes

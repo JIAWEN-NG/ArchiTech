@@ -41,7 +41,7 @@
   text-align: center;
   background: rgba(255, 255, 255, 0.08);
   border-radius: 24px;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+  box-shadow: 0px 20px 40px rgba(0,0,0,0.3);
   border: 1px solid rgba(255, 255, 255, 0.1);
   max-width: 400px;
   width: 100%;
@@ -79,7 +79,7 @@
 /* Default button background */
 .Button {
   background: #ff2d55;
-  box-shadow: 0 8px 24px rgba(255, 45, 85, 0.4);
+  box-shadow: 0px 8px 24px rgba(255, 45, 85, 0.4);
 }
 
 /* Button text styling */
@@ -99,7 +99,7 @@
   text-align: center;
   font-weight: bold;
   align-self: flex-start;
-  box-shadow: 0 4px 12px rgba(255, 45, 85, 0.3);
+  box-shadow: 0px 4px 12px rgba(255, 45, 85, 0.3);
 }
 
 .BackButton text {
@@ -111,7 +111,7 @@
 @media (max-width: 480px) {
   .Content {
     padding: 32px 24px;
-    margin: 0 16px;
+    margin: 0px 16px;
   }
   
   .Title {

@@ -24,7 +24,7 @@ export function App(props: { onRender?: () => void }) {
   const goBack = useCallback(() => setPage('home'), []);
 
   // as no login implemented pass in dummy creatorId value 
-  const currentCreatorId = "creator_fitness";
+  const currentCreatorId = "creator_001";
 
   // --- AI Chat Page ---
   if (page === 'aiChat') {

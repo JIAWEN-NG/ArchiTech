@@ -7,8 +7,8 @@
   justify-content: flex-start;
   align-items: center;
   color: #fff;
-  font-family: Arial, sans-serif;
-
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  
   /* Respect safe area at the top (for battery/status bar) */
   padding-top: env(safe-area-inset-top);
   box-sizing: border-box;
@@ -17,79 +17,199 @@
 /* Container for pages to avoid overlapping status bar */
 .PageContainer {
   width: 100%;
-  max-width: none;       /* remove width limit */
-  align-items: stretch;  /* stretch children to full width */
-  padding-top: 20px; /* extra spacing below status bar */
+  max-width: none;
+  align-items: stretch;
+  padding-top: 20px;
 }
 
 /* Home page wrapper */
 .App {
   width: 100%;
   display: flex;
-  justify-content: flex-start; /* push down content */
+  justify-content: flex-start;
   align-items: center;
   flex-direction: column;
+  padding: 20px;
 }
 
-/* Content container with card effect */
+/* Content container with modern card effect */
 .Content {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 32px;
+  padding: 40px 32px;
   text-align: center;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 20px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 24px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  max-width: 400px;
+  width: 100%;
 }
 
-/* Title styling - solid color fallback */
+/* Title styling with solid color */
 .Title {
-  font-size: 32px;
-  font-weight: bold;
-  margin-bottom: 12px;
+  font-size: 36px;
+  font-weight: 800;
+  margin-bottom: 8px;
   color: #ff2d55;
+  letter-spacing: -0.5px;
 }
 
-/* Description text */
+/* Description text with better spacing */
 .Description {
   font-size: 16px;
-  margin-bottom: 30px;
-  color: #ffffffcc;
+  margin-bottom: 40px;
+  color: rgba(255, 255, 255, 0.7);
+  line-height: 1.5;
+  font-weight: 400;
 }
 
-/* Navigation button */
+/* Consistent button styling */
 .Button {
-  background: #ff2d55;
-  padding: 16px 32px;
+  width: 100%;
+  padding: 18px 24px;
   border-radius: 16px;
   text-align: center;
-  transition: all 0.25s ease;
-  margin-top: 12px;
+  transition: all 0.3s ease;
+  margin-bottom: 16px;
   cursor: pointer;
-  box-shadow: 0 5px 15px rgba(255,45,85,0.4);
+  position: relative;
+  overflow: hidden;
+  border: none;
+  font-weight: 600;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 56px;
 }
 
-.Button:hover {
-  transform: translateY(-3px) scale(1.05);
-  box-shadow: 0 10px 20px rgba(255,45,85,0.6);
+/* Primary button (Caption Preview) */
+.Button[style*="background-color: #ff6b6b"], 
+.Button[style*="background-color:#ff6b6b"] {
+  background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
+  box-shadow: 0 8px 24px rgba(255, 107, 107, 0.4);
+}
+
+/* Default button styling */
+.Button:not([style*="background-color"]) {
+  background: linear-gradient(135deg, #ff2d55, #ff4757);
+  box-shadow: 0 8px 24px rgba(255, 45, 85, 0.4);
+}
+
+/* Developer tools button (gray) */
+.Button[style*="background-color: #6c757d"],
+.Button[style*="background-color:#6c757d"] {
+  background: linear-gradient(135deg, #6c757d, #868e96);
+  box-shadow: 0 8px 24px rgba(108, 117, 125, 0.3);
+}
+
+/* Hover effects for all buttons */
+.Button:active {
+  transform: translateY(-2px) scale(0.98);
+  box-shadow: 0 12px 32px rgba(255, 45, 85, 0.5);
+}
+
+.Button[style*="background-color: #ff6b6b"]:active {
+  box-shadow: 0 12px 32px rgba(255, 107, 107, 0.5);
+}
+
+.Button[style*="background-color: #6c757d"]:active {
+  box-shadow: 0 12px 32px rgba(108, 117, 125, 0.4);
+}
+
+/* Button text styling */
+.Button text {
+  color: #fff;
+  font-weight: 600;
+  font-size: 16px;
+  letter-spacing: 0.3px;
+}
+
+/* Back button for other pages */
+.BackButton {
+  padding: 12px 20px;
+  background: linear-gradient(135deg, #ff2d55, #ff4757);
+  color: #fff;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  text-align: center;
+  font-weight: 600;
+  cursor: pointer;
+  align-self: flex-start;
+  box-shadow: 0 4px 12px rgba(255, 45, 85, 0.3);
+  transition: all 0.2s ease;
+}
+
+.BackButton:active {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(255, 45, 85, 0.4);
+}
+
+.BackButton text {
+  color: #fff;
+  font-weight: 600;
+}
+
+/* Responsive design */
+@media (max-width: 480px) {
+  .Content {
+    padding: 32px 24px;
+    margin: 0 16px;
+  }
+  
+  .Title {
+    font-size: 32px;
+  }
+  
+  .Button {
+    padding: 16px 20px;
+    font-size: 15px;
+  }
+  
+  .App {
+    padding: 16px;
+  }
+}
+
+/* Add subtle animation */
+.Content {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Button ripple effect */
+.Button::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  transition: width 0.3s ease, height 0.3s ease;
+  transform: translate(-50%, -50%);
+  z-index: 0;
+}
+
+.Button:active::before {
+  width: 300px;
+  height: 300px;
 }
 
 .Button text {
-  color: #fff;
-  font-weight: bold;
-  font-size: 16px;
-}
-
-/* Back button for AI Chat / Personalized / Dev page */
-.BackButton {
-  padding: 12px 16px;
-  background-color: #ff2d55;
-  color: #fff;
-  border-radius: 8px;
-  margin-bottom: 16px; /* spacing below button */
-  text-align: center;
-  font-weight: bold;
-  cursor: pointer;
-  align-self: flex-start;
+  position: relative;
+  z-index: 1;
 }

@@ -6,411 +6,463 @@ interface Msg {
   id?: number;
 }
 
-// API Configuration
+interface ChatResponse {
+  reply: string;
+  captions?: string[];
+  hashtags?: string[];
+  trends?: string[];
+}
+
+interface CaptionResponse {
+  captions: string[];
+}
+
+interface TrendsResponse {
+  trends: string[];
+}
+
 const API_CONFIG = {
-  baseUrl: "http://localhost:3001", // Your backend URL
+  baseUrl: "http://127.0.0.1:3002",
   endpoints: {
+    health: "/health",
     chat: "/api/chat",
     generateCaption: "/api/captions/generate",
-    getTrends: "/api/trends"
-  }
+    getTrends: "/api/trends",
+  },
 };
+
+async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
+  const res = await fetch(`${API_CONFIG.baseUrl}${path}`, {
+    headers: { "Content-Type": "application/json" },
+    ...options,
+  });
+  if (!res.ok) {
+    const txt = await res.text().catch(() => "");
+    throw new Error(`API ${path} failed: ${res.status} ${txt}`);
+  }
+  return res.json() as Promise<T>;
+}
 
 export default function ChatPanel(props: {
   onNewBotMessage?: (msg: Msg) => void;
   onBack?: () => void;
 }) {
   const [messages, setMessages] = useState<Msg[]>([
-    { text: "Hello! I'm your AI TikTok assistant. I can help you create viral captions, suggest trending topics, and boost your content engagement. What would you like to work on?", from: "bot" },
+    {
+      text:
+        "Hello! I’m your AI TikTok assistant. I can help with catchy captions, hashtags, and trend ideas to boost engagement. What would you like to work on?",
+      from: "bot",
+    },
   ]);
   const [inputValue, setInputValue] = useState("");
-  const [pendingSuggestion, setPendingSuggestion] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [connectionStatus, setConnectionStatus] = useState<'connected' | 'disconnected' | 'checking'>('checking');
-  const scrollRef = useRef<any>(null);
-  const suggestionIdRef = useRef(0);
+  const [connectionStatus, setConnectionStatus] = useState<
+    "connected" | "disconnected" | "checking"
+  >("checking");
 
-  // Check backend connection on mount
+  const [captionSuggestions, setCaptionSuggestions] = useState<string[] | null>(
+    null
+  );
+  const [trendSuggestions, setTrendSuggestions] = useState<string[] | null>(
+    null
+  );
+
+  const scrollRef = useRef<any>(null);
+  const msgIdRef = useRef(1);
+
   useEffect(() => {
-    checkBackendConnection();
+    let cancelled = false;
+    (async () => {
+      try {
+        setConnectionStatus("checking");
+        await apiFetch(API_CONFIG.endpoints.health);
+        if (!cancelled) setConnectionStatus("connected");
+      } catch {
+        if (!cancelled) setConnectionStatus("disconnected");
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-    }
-  }, [messages, pendingSuggestion]);
-
-  const checkBackendConnection = async () => {
     try {
-      const response = await fetch(`${API_CONFIG.baseUrl}/health`, {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
-      });
-      
-      if (response.ok) {
-        setConnectionStatus('connected');
-      } else {
-        setConnectionStatus('disconnected');
+      if (scrollRef.current && typeof scrollRef.current.scrollTo === "function") {
+        scrollRef.current.scrollTo({ top: 999999, behavior: "smooth" });
       }
-    } catch (error) {
-      console.warn('Backend not connected, using fallback mode');
-      setConnectionStatus('disconnected');
-    }
+    } catch {}
+  }, [messages, captionSuggestions, trendSuggestions]);
+
+  const pushUserMessage = (text: string) => {
+    setMessages((prev) => [
+      ...prev,
+      { text, from: "user", id: msgIdRef.current++ },
+    ]);
   };
 
-  const fetchBotReply = useCallback(async (userText: string) => {
-    setIsLoading(true);
-    
-    try {
-      if (connectionStatus === 'connected') {
-        // Real backend integration
-        const response = await fetch(`${API_CONFIG.baseUrl}${API_CONFIG.endpoints.chat}`, {
+  const pushBotMessage = (text: string) => {
+    const msg = { text, from: "bot" as const, id: msgIdRef.current++ };
+    setMessages((prev) => [...prev, msg]);
+    props.onNewBotMessage?.(msg);
+  };
+
+  const setRichResults = (resp: ChatResponse | null) => {
+    setCaptionSuggestions(resp?.captions?.length ? resp.captions : null);
+    setTrendSuggestions(resp?.trends?.length ? resp.trends : null);
+  };
+
+  const sendToChat = useCallback(
+    async (userText: string) => {
+      setIsLoading(true);
+      setRichResults(null);
+
+      try {
+        const payload = {
+          message: userText,
+          context: "tiktok_caption_generation",
+          previousMessages: messages.slice(-6).map((m) => ({
+            text: m.text,
+            from: m.from,
+          })),
+        };
+
+        const data = await apiFetch<ChatResponse>(API_CONFIG.endpoints.chat, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ 
-            message: userText,
-            context: "tiktok_caption_generation",
-            previousMessages: messages.slice(-4) // Send recent context
-          }),
+          body: JSON.stringify(payload),
         });
 
-        if (!response.ok) {
-          throw new Error(`Backend error: ${response.status}`);
-        }
-
-        const data = await response.json();
-        setPendingSuggestion(data.reply || "Sorry, I couldn't generate a response right now.");
-        
-      } else {
-        // Fallback mode with intelligent responses
-        await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate network delay
-        
-        const fallbackResponses = getFallbackResponse(userText);
-        setPendingSuggestion(fallbackResponses);
+        const reply = (data.reply || "").trim();
+        if (reply) pushBotMessage(reply);
+        setRichResults(data);
+      } catch {
+        pushBotMessage(
+          "Hmm, I couldn’t reach the AI service. I’ll try a smart fallback.\n\n" +
+            fallbackResponse(userText)
+        );
+      } finally {
+        setIsLoading(false);
       }
-      
-    } catch (error) {
-      console.error('AI API Error:', error);
-      
-      // Graceful fallback
-      const fallbackResponse = `I'm having trouble connecting right now, but here's a suggestion for "${userText}": Try adding a hook like "Wait for it..." or "You won't believe what happens next!" to grab attention in the first 3 seconds! 🎬`;
-      setPendingSuggestion(fallbackResponse);
+    },
+    [messages]
+  );
+
+  const requestCaptions = useCallback(async (topic: string) => {
+    setIsLoading(true);
+    setRichResults(null);
+
+    try {
+      const body = { topic, count: 5, tone: "engaging", niche: "TikTok" };
+      const data = await apiFetch<CaptionResponse>(
+        API_CONFIG.endpoints.generateCaption,
+        { method: "POST", body: JSON.stringify(body) }
+      );
+
+      if (data.captions?.length) {
+        pushBotMessage("Here are some caption options 👇");
+        setCaptionSuggestions(data.captions);
+      } else {
+        pushBotMessage("I couldn’t generate captions right now.");
+      }
+    } catch {
+      pushBotMessage(
+        "The caption endpoint isn’t reachable, so here’s a quick fallback:"
+      );
+      setCaptionSuggestions(fallbackCaptions(topic));
     } finally {
       setIsLoading(false);
     }
-  }, [messages, connectionStatus]);
+  }, []);
 
-  const getFallbackResponse = (userText: string): string => {
-    const lowerText = userText.toLowerCase();
-    
-    // Smart fallback responses based on keywords
-    if (lowerText.includes('caption') || lowerText.includes('viral')) {
-      return `🔥 For viral captions about "${userText}", try this formula: Hook + Story + Call-to-Action! Start with "POV:" or "Wait for it..." then ask your audience a question. Don't forget trending hashtags like #fyp #viral #foryou!`;
+  const requestTrends = useCallback(async (niche?: string) => {
+    setIsLoading(true);
+    setRichResults(null);
+
+    try {
+      const qs = niche ? `?niche=${encodeURIComponent(niche)}` : "";
+      const data = await apiFetch<TrendsResponse>(
+        `${API_CONFIG.endpoints.getTrends}${qs}`
+      );
+
+      if (data.trends?.length) {
+        pushBotMessage("Here are some trend ideas 👇");
+        setTrendSuggestions(data.trends);
+      } else {
+        pushBotMessage("I couldn’t fetch trends right now.");
+      }
+    } catch {
+      pushBotMessage(
+        "The trends endpoint isn’t reachable, so here are some quick ideas:"
+      );
+      setTrendSuggestions(fallbackTrends());
+    } finally {
+      setIsLoading(false);
     }
-    
-    if (lowerText.includes('hashtag')) {
-      return `📈 Great hashtag strategy for "${userText}": Mix 2-3 trending tags (#fyp #viral #trending) with 3-4 niche tags specific to your content. This gives you both reach AND targeted engagement!`;
+  }, []);
+
+  const fallbackResponse = (userText: string): string => {
+    const lower = userText.toLowerCase();
+    if (lower.includes("trend")) {
+      return [
+        "• Behind-the-scenes quick cut — try #BTS",
+        "• I tried X so you don’t have to — #HonestReview",
+        "• 3 fast tips with text — #ProTips",
+        "• Day in the life montage — #DayInMyLife",
+        "• Before/After with beat drop — #GlowUp",
+      ].join("\n");
     }
-    
-    if (lowerText.includes('trend')) {
-      return `📊 Current trending ideas for "${userText}": Behind-the-scenes content, day-in-my-life videos, quick tutorials, and reaction content are performing well! Try the "Get Ready With Me" or "Things I wish I knew" formats.`;
-    }
-    
-    // Default response
-    return `✨ Here's a content strategy for "${userText}": Create curiosity in your first 3 seconds, tell a mini-story, and end with a question to boost engagement. Try formats like "POV:", "Tell me why...", or "Rating [topic] until..." #content #creator #fyp`;
+    return [
+      "1) Stop scrolling! You won’t believe this… 🔥",
+      "2) POV: You finally try the hack everyone’s talking about 👀",
+      "3) This changed my results in 7 days. Here’s how ⬇️",
+      "Hashtags: #viral #howto #creator",
+    ].join("\n");
   };
 
-  const sendMessage = useCallback(() => {
-    const text = inputValue.trim();
-    if (!text || isLoading) return;
-
-    const userMsg: Msg = { text, from: "user", id: suggestionIdRef.current++ };
-    setMessages(prev => [...prev, userMsg]);
-    setInputValue("");
-
-    fetchBotReply(text);
-  }, [inputValue, fetchBotReply, isLoading]);
-
-  const approveSuggestion = () => {
-    if (!pendingSuggestion) return;
-
-    const botMsg: Msg = { text: pendingSuggestion, from: "bot", id: suggestionIdRef.current++ };
-    setMessages(prev => [...prev, botMsg]);
-
-    setPendingSuggestion(null);
-    props.onNewBotMessage?.(botMsg);
-  };
-
-  const editSuggestion = () => {
-    if (!pendingSuggestion) return;
-    setInputValue(pendingSuggestion);
-    setPendingSuggestion(null);
-  };
-
-  const rejectSuggestion = () => {
-    setPendingSuggestion(null);
-  };
-
-  // Quick action buttons for common requests
-  const quickActions = [
-    "Generate a viral caption",
-    "What's trending now?", 
-    "Add engaging hashtags",
-    "Make it more funny"
+  const fallbackCaptions = (topic: string): string[] => [
+    `This ${topic} tip changed everything 🔥 #creator`,
+    `Tried it so you don’t have to 👀 #ProTips`,
+    `Quick win for ${topic} you can copy ⬇️ #howto`,
+    `The secret I wish I knew earlier #learnontiktok`,
+    `Do this before you start — thank me later 🙌`,
   ];
 
-  const handleQuickAction = (action: string) => {
-    if (isLoading) return;
-    
-    const userMsg: Msg = { text: action, from: "user", id: suggestionIdRef.current++ };
-    setMessages(prev => [...prev, userMsg]);
-    fetchBotReply(action);
+  const fallbackTrends = (): string[] => [
+    "30-sec micro-storytime",
+    "Before/After quick cuts",
+    "First-person POV reactions",
+    "Daily mini-vlog routines",
+    "Duet challenge spin-offs",
+    "Superfast recipe edits",
+    "Mini explainers with captions",
+  ];
+
+  const onSend = async () => {
+    const userText = inputValue.trim();
+    if (!userText || isLoading) return;
+
+    setCaptionSuggestions(null);
+    setTrendSuggestions(null);
+
+    pushUserMessage(userText);
+    setInputValue("");
+
+    if (connectionStatus !== "connected") {
+      pushBotMessage(fallbackResponse(userText));
+      return;
+    }
+
+    await sendToChat(userText);
   };
 
-  const getStatusColor = () => {
-    switch (connectionStatus) {
-      case 'connected': return '#25D366';
-      case 'disconnected': return '#FF6B6B';
-      case 'checking': return '#FFA726';
-      default: return '#cccccc';
-    }
-  };
-
-  const getStatusText = () => {
-    switch (connectionStatus) {
-      case 'connected': return 'AI Connected';
-      case 'disconnected': return 'Offline Mode';
-      case 'checking': return 'Connecting...';
-      default: return 'Unknown';
-    }
-  };
+  const useChip = (text: string) => setInputValue(text);
 
   return (
-    <page>
-      <view className="PageBackground">
-        
-        {/* Header */}
-        <view style={{ padding: "16px 20px", background: "#eeeeee", flexDirection: "column" }}>
-          <view style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
-            <view style={{ flexDirection: "column" }}>
-              <text style={{ color: "#000000", fontSize: "16px", fontWeight: "bold" }}>TikTok AI Assistant</text>
-              <text style={{ color: "#000000", fontSize: "14px" }}>
-                {isLoading ? "AI is thinking..." : "Create viral content with AI"}
-              </text>
-            </view>
-            
-            {/* Connection Status */}
-            <view style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
-              <view style={{ 
-                width: "8px", 
-                height: "8px", 
-                borderRadius: "4px", 
-                background: getStatusColor(),
-                marginRight: "6px" 
-              }} />
-              <text style={{ fontSize: "12px", color: "#666666" }}>
-                {getStatusText()}
-              </text>
-            </view>
-          </view>
-        </view>
+    <page style={{ background: "#f8f8f8", width: "100%", height: "100%" }}>
+      {/* Header */}
+      <view
+        style={{
+          padding: "12px 16px",
+          background: "#111827",
+          color: "white",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
+      >
+        <text style={{ fontWeight: "700" }}>AI Creator Assistant</text>
+        <text
+          style={{
+            fontSize: "12px",
+            opacity: 0.8,
+            color:
+              connectionStatus === "connected"
+                ? "#34D399"
+                : connectionStatus === "checking"
+                ? "#FBBF24"
+                : "#EF4444",
+          }}
+        >
+          {connectionStatus === "connected"
+            ? "Connected"
+            : connectionStatus === "checking"
+            ? "Checking…"
+            : "Offline"}
+        </text>
+      </view>
 
-        {/* Messages */}
-        <scroll-view ref={scrollRef} scroll-y style={{ flex: "1", padding: "12px", paddingBottom: "120px" }}>
-          {messages.map((msg, idx) => (
-            <view
-              key={idx}
-              style={{
-                background: msg.from === "user" ? "#DCF8C6" : "#FFFFFF",
-                alignSelf: msg.from === "user" ? "flex-end" : "flex-start",
-                padding: "12px 16px",
-                borderRadius: "20px",
-                marginBottom: "8px",
-                maxWidth: "75%",
-                boxShadow: "0px 1px 1px rgba(0,0,0,0.1)",
-              }}
-            >
-              <text style={{ fontSize: "16px", color: "#000000" }}>{msg.text}</text>
-            </view>
-          ))}
-
-          {/* Loading indicator */}
-          {isLoading && (
-            <view
-              style={{
-                background: "#F5F5F5",
-                padding: "12px 16px",
-                borderRadius: "20px",
-                marginBottom: "8px",
-                maxWidth: "75%",
-                alignSelf: "flex-start",
-              }}
-            >
-              <text style={{ fontSize: "16px", color: "#666666" }}>🤖 AI is crafting your response...</text>
-            </view>
-          )}
-
-          {/* Pending suggestion */}
-          {pendingSuggestion && (
-            <view
-              style={{
-                background: "#E1F5FE",
-                padding: "12px 16px",
-                borderRadius: "20px",
-                marginBottom: "8px",
-                maxWidth: "75%",
-                alignSelf: "flex-start",
-                border: "2px solid #2196F3",
-              }}
-            >
-              <text style={{ fontSize: "12px", color: "#1976D2", fontWeight: "bold", marginBottom: "6px" }}>
-                ✨ AI Suggestion
-              </text>
-              <text style={{ fontSize: "16px", color: "#000000" }}>
-                {pendingSuggestion}
-              </text>
-
-              {/* Button row */}
-              <view
-                style={{
-                  display: "flex",
-                  flexDirection: "row",
-                  justifyContent: "flex-start",
-                  alignItems: "center",
-                  marginTop: "12px",
-                }}
-              >
-                <view
-                  bindtap={approveSuggestion}
-                  style={{
-                    background: "#25D366",
-                    padding: "8px 16px",
-                    borderRadius: "20px",
-                    marginRight: "8px",
-                  }}
-                >
-                  <text style={{ fontSize: "14px", fontWeight: "bold", color: "#ffffff" }}>
-                    ✓ Accept
-                  </text>
-                </view>
-
-                <view
-                  bindtap={editSuggestion}
-                  style={{
-                    background: "#FF9800",
-                    padding: "8px 16px",
-                    borderRadius: "20px",
-                    marginRight: "8px",
-                  }}
-                >
-                  <text style={{ fontSize: "14px", fontWeight: "bold", color: "#ffffff" }}>
-                    ✏ Edit
-                  </text>
-                </view>
-
-                <view
-                  bindtap={rejectSuggestion}
-                  style={{
-                    background: "#F44336",
-                    padding: "8px 16px",
-                    borderRadius: "20px",
-                  }}
-                >
-                  <text style={{ fontSize: "14px", fontWeight: "bold", color: "#ffffff" }}>
-                    ✗ Reject
-                  </text>
-                </view>
-              </view>
-            </view>
-          )}
-
-          {/* Quick Actions */}
-          {!isLoading && !pendingSuggestion && messages.length <= 2 && (
-            <view style={{ marginTop: "16px" }}>
-              <text style={{ fontSize: "14px", color: "#666666", marginBottom: "12px", textAlign: "center" }}>
-                💡 Quick Actions:
-              </text>
-              <view style={{ display: "flex", flexDirection: "row", flexWrap: "wrap", justifyContent: "center" }}>
-                {quickActions.map((action, idx) => (
-                  <view
-                    key={idx}
-                    bindtap={() => handleQuickAction(action)}
-                    style={{
-                      background: "#E3F2FD",
-                      padding: "8px 12px",
-                      borderRadius: "16px",
-                      border: "1px solid #2196F3",
-                      marginRight: "8px",
-                      marginBottom: "8px",
-                    }}
-                  >
-                    <text style={{ fontSize: "14px", color: "#1976D2" }}>{action}</text>
-                  </view>
-                ))}
-              </view>
-            </view>
-          )}
-        </scroll-view>
-
-        {/* Composer row */}
-        <view style={{
-          position: "fixed", 
-          left: "0px", 
-          right: "0px", 
-          bottom: "0px", 
+      {/* Messages */}
+      <view
+        ref={scrollRef}
+        style={{
+          flex: 1,
+          overflow: "auto",
           padding: "16px",
-          background: "#F0F0F0", 
-          borderTopWidth: "1px", 
-          borderTopColor: "#cccccc",
-          display: "flex", 
-          flexDirection: "row", 
-          alignItems: "center"
-        }}>
-          <input
-            type="text"
-            value={inputValue}
-            placeholder={
-              isLoading 
-                ? "AI is thinking..." 
-                : "Ask for captions, hashtags, trends, or content ideas..."
-            }
-            bindinput={(e) => setInputValue(e.detail.value)}
-            bindconfirm={sendMessage}
-            disabled={isLoading}
-            style={{
-              flex: "1",
-              background: isLoading ? "#f5f5f5" : "#ffffff",
-              padding: "10px",
-              borderRadius: "20px",
-              color: "#000000",
-              marginRight: "12px",
-              minHeight: "60px",
-              border: "1px solid #cccccc",
-              opacity: isLoading ? 0.6 : 1,
-            }}
-          />
-
+          display: "flex",
+          flexDirection: "column",
+          gap: "10px",
+          background: "#ffffff",
+        }}
+      >
+        {messages.map((m) => (
           <view
-            bindtap={sendMessage}
+            key={m.id ?? `${m.from}-${m.text.slice(0, 8)}`}
             style={{
-              width: "70px", 
-              height: "70px", 
-              background: isLoading || !inputValue.trim() ? "#cccccc" : "#25D366", 
-              borderRadius: "35px",
-              justifyContent: "center", 
-              alignItems: "center",
-              minWidth: "70px", 
-              minHeight: "70px",
-              opacity: isLoading || !inputValue.trim() ? 0.6 : 1,
+              alignSelf: m.from === "user" ? "flex-end" : "flex-start",
+              maxWidth: "85%",
+              background: m.from === "user" ? "#2563EB" : "#F3F4F6",
+              color: m.from === "user" ? "#FFFFFF" : "#111827",
+              borderRadius: "14px",
+              padding: "10px 12px",
+              boxShadow:
+                m.from === "user"
+                  ? "none"
+                  : "0 1px 2px rgba(0,0,0,0.06), 0 1px 1px rgba(0,0,0,0.04)",
+              // Lynx doesn't support whiteSpace: 'pre-wrap'
+              lineHeight: "1.35",
             }}
           >
-            <text style={{ color: "#ffffff", fontWeight: "bold", fontSize: "16px" }}>
-              {isLoading ? "⏳" : "➤"}
-            </text>
+            <text>{m.text}</text>
           </view>
+        ))}
+
+        {/* Caption chips */}
+        {captionSuggestions && captionSuggestions.length > 0 && (
+          <view
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              gap: "8px",
+              marginTop: "4px",
+            }}
+          >
+            {captionSuggestions.map((c, i) => (
+              <view
+                key={`cap-${i}`}
+                style={{
+                  background: "#FEF3C7",
+                  color: "#92400E",
+                  border: "1px solid #F59E0B",
+                  padding: "8px 10px",
+                  borderRadius: "12px",
+                  cursor: "pointer",
+                }}
+                bindtap={() => useChip(c)}
+              >
+                <text>{c}</text>
+              </view>
+            ))}
+          </view>
+        )}
+
+        {/* Trend chips */}
+        {trendSuggestions && trendSuggestions.length > 0 && (
+          <view
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              gap: "8px",
+              marginTop: "4px",
+            }}
+          >
+            {trendSuggestions.map((t, i) => (
+              <view
+                key={`trend-${i}`}
+                style={{
+                  background: "#DBEAFE",
+                  color: "#1E40AF",
+                  border: "1px solid #60A5FA",
+                  padding: "8px 10px",
+                  borderRadius: "12px",
+                  cursor: "pointer",
+                }}
+                bindtap={() => useChip(t)}
+              >
+                <text>{t}</text>
+              </view>
+            ))}
+          </view>
+        )}
+      </view>
+
+      {/* Composer */}
+      <view
+        style={{
+          padding: "10px 12px",
+          borderTop: "1px solid #E5E7EB",
+          background: "#F9FAFB",
+          display: "flex",
+          gap: "8px",
+          alignItems: "center",
+        }}
+      >
+        <input
+          type="text"
+          placeholder={
+            isLoading
+              ? "AI is thinking…"
+              : "Ask for captions, hashtags, trends, or content ideas..."
+          }
+          value={inputValue}
+          bindinput={(e: any) =>
+            setInputValue(e?.detail?.value ?? e?.target?.value ?? "")
+          }
+          style={{
+            flex: 1,
+            padding: "12px 14px",
+            borderRadius: "12px",
+            border: "1px solid #D1D5DB",
+            outline: "none",
+            background: "#fff",
+          }}
+        />
+        <view
+          bindtap={onSend}
+          style={{
+            background: isLoading || !inputValue.trim() ? "#9CA3AF" : "#2563EB",
+            color: "#fff",
+            borderRadius: "12px",
+            padding: "12px 16px",
+            cursor: isLoading || !inputValue.trim() ? "not-allowed" : "pointer",
+            display: "flex",
+            alignItems: "center",
+            minWidth: "70px",
+            minHeight: "42px",
+            justifyContent: "center",
+            opacity: isLoading || !inputValue.trim() ? 0.7 : 1,
+          }}
+        >
+          <text style={{ fontWeight: "bold", fontSize: "16px" }}>
+            {isLoading ? "⏳" : "➤"}
+          </text>
+        </view>
+      </view>
+
+      {/* Quick actions */}
+      <view
+        style={{
+          display: "flex",
+          gap: "8px",
+          padding: "8px 12px",
+          background: "#F3F4F6",
+          borderTop: "1px solid #E5E7EB",
+        }}
+      >
+        <view style={quickBtn} bindtap={() => requestCaptions("a cozy cafe vlog")}>
+          <text>✨ Captions (Cafe Vlog)</text>
+        </view>
+        <view style={quickBtn} bindtap={() => requestTrends("fitness")}>
+          <text>🔥 Trends (Fitness)</text>
         </view>
       </view>
     </page>
   );
 }
+
+const quickBtn: any = {
+  padding: "8px 10px",
+  borderRadius: "10px",
+  background: "#FFFFFF",
+  border: "1px solid #E5E7EB",
+  cursor: "pointer",
+};

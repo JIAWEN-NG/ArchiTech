@@ -3,116 +3,282 @@
 .CaptionPreview {
   width: 100%;
   padding: 20px;
+  margin-left: 10px; /* Add left margin as requested */
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  align-items: center; /* Center the content horizontally */
 }
 
-.PreviewHeader {
+.FlowHeader {
   text-align: center;
   margin-bottom: 30px;
+  width: 100%;
 }
 
-.PreviewTitle {
+.FlowTitle {
   font-size: 28px;
   font-weight: bold;
   color: white;
   margin-bottom: 8px;
 }
 
-.PreviewSubtitle {
+.FlowSubtitle {
   font-size: 16px;
   color: rgba(255, 255, 255, 0.8);
 }
 
-.CardContainer {
+/* STEP 1: Upload Video */
+.UploadSection {
   flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  position: relative;
+  margin-bottom: 40px;
+  width: 100%;
+  max-width: 400px;
 }
 
-.CaptionCard {
-  width: 320px;
-  height: 500px;
+.UploadBox {
+  width: 300px;
+  height: 200px;
+  border: 3px dashed rgba(255, 255, 255, 0.5);
   border-radius: 20px;
-  overflow: hidden;
-  background: #000;
-  position: relative;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-  transition: transform 0.2s ease;
-}
-
-.CaptionCard:active {
-  transform: scale(0.98);
-}
-
-.VideoThumbnail {
-  width: 100%;
-  height: 100%;
-  position: relative;
-}
-
-.ThumbnailImage {
-  width: 100%;
-  height: 100%;
-}
-
-.PlayButton {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.9);
   display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 30px;
+  background: rgba(255, 255, 255, 0.05);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.UploadBox:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.8);
+}
+
+.UploadIcon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.UploadText {
+  font-size: 18px;
+  color: white;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.UploadHint {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.UploadButton {
+  width: 100%;
+  max-width: 300px;
+  padding: 16px 32px;
+  background: #ff6b6b;
+  border-radius: 16px;
+  text-align: center;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  margin-bottom: 16px;
+}
+
+.UploadButton:hover {
+  background: #ff5252;
+}
+
+.UploadButton text {
+  color: white;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.TestButton {
+  width: 100%;
+  max-width: 300px;
+  padding: 12px 24px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  text-align: center;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  border: 2px dashed rgba(255, 255, 255, 0.5);
+}
+
+.TestButton:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.TestButton text {
+  color: white;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.FeaturesList {
+  margin-top: 40px;
+  width: 100%;
+  max-width: 400px;
+}
+
+.FeatureItem {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+}
+
+.FeatureIcon {
+  font-size: 20px;
+  margin-right: 12px;
+}
+
+.FeatureText {
+  color: white;
+  font-size: 14px;
+}
+
+/* STEP 2: Processing */
+.ProcessingSection {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 400px;
+}
+
+.ProcessingSpinner {
+  font-size: 64px;
+  margin-bottom: 40px;
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.ProcessingSteps {
+  width: 100%;
+  max-width: 300px;
+}
+
+.ProcessingStep {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+}
+
+.StepIcon {
+  font-size: 20px;
+  margin-right: 12px;
+}
+
+.StepText {
+  color: white;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+/* STEP 3: Preview Captions */
+.PreviewContainer {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 400px;
+}
+
+.VideoPreview {
+  width: 320px;
+  height: 480px;
+  background: #000;
+  border-radius: 20px;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 20px;
+  box-shadow: 0px 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+.VideoContainer {
+  width: 100%;
+  height: 70%;
+  background: linear-gradient(45deg, #333, #555);
+  display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
 }
 
-.PlayButton text {
-  font-size: 24px;
-  color: #000;
-  margin-left: 4px;
+.VideoContainer .PlayIcon {
+  font-size: 48px;
+  margin-bottom: 8px;
+  color: white;
+}
+
+.VideoContainer .VideoLabel {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 14px;
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.VideoStatus, .ReadyStatus {
+  color: #4CAF50;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.PlayIcon {
+  font-size: 48px;
+  margin-bottom: 8px;
+  color: white;
+}
+
+.VideoLabel {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 14px;
 }
 
 .CaptionOverlay {
   position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
+  bottom: 0px;
+  left: 0px;
+  right: 0px;
   background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
   padding: 20px;
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
 }
 
-.CaptionContent {
-  flex: 1;
-  margin-right: 15px;
-}
-
-.CaptionText {
-  font-size: 16px;
+.PreviewCaption {
   color: white;
+  font-size: 16px;
   line-height: 1.4;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
   font-weight: 500;
 }
 
-.TrendInfo {
+.CaptionMeta {
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
 
-.TrendTag {
+.TrendInfo {
   font-size: 12px;
   color: #ff6b6b;
   background: rgba(255, 107, 107, 0.2);
@@ -121,138 +287,231 @@
   align-self: flex-start;
 }
 
-.EngagementStats {
+.EngagementInfo {
   font-size: 12px;
   color: rgba(255, 255, 255, 0.7);
 }
 
-.ActionButtons {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+.ConfidenceScore {
+  font-size: 12px;
+  color: #4CAF50;
+  font-weight: bold;
 }
 
-.ActionButton {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.3);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.ActionButton text {
-  font-size: 20px;
-}
-
-.ActionButton:active {
-  transform: scale(0.9);
-  background: rgba(255, 255, 255, 0.4);
-}
-
-.NavigationControls {
+.CaptionNavigation {
   display: flex;
   align-items: center;
   justify-content: space-between;
   width: 320px;
-  margin-top: 20px;
+  margin-bottom: 30px;
 }
 
-.NavButton {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
+.NavBtn {
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  text-align: center;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  min-width: 80px;
+}
+
+.NavBtn:hover {
   background: rgba(255, 255, 255, 0.3);
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
-.NavButton text {
-  font-size: 24px;
+.NavBtn text {
   color: white;
   font-weight: bold;
 }
 
-.NavButtonDisabled {
+.NavBtnDisabled {
   opacity: 0.3;
+  cursor: not-allowed;
 }
 
-.NavButton:active:not(.NavButtonDisabled) {
-  transform: scale(0.9);
-  background: rgba(255, 255, 255, 0.4);
+.NavBtnDisabled:hover {
+  background: rgba(255, 255, 255, 0.2);
 }
 
-.PageIndicator text {
+.CaptionCounter text {
   color: white;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 500;
 }
 
-.DotIndicators {
-  display: flex;
-  gap: 8px;
-  margin-top: 20px;
-}
-
-.Dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.3);
-  transition: all 0.2s ease;
-}
-
-.DotActive {
-  background: white;
-  transform: scale(1.2);
-}
-
-.PreviewActions {
-  display: flex;
-  gap: 15px;
-  margin-top: 30px;
-  padding: 0 10px;
-}
-
-.PreviewActionButton {
+/* STEP 4: Download */
+.DownloadSection {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 400px;
+}
+
+.FinalPreview {
+  width: 280px;
+  height: 400px;
+  background: #000;
+  border-radius: 16px;
+  position: relative;
+  margin-bottom: 30px;
+  box-shadow: 0px 16px 32px rgba(0, 0, 0, 0.3);
+}
+
+.FinalVideo {
+  width: 100%;
+  height: 70%;
+  background: linear-gradient(45deg, #333, #555);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 16px 16px 0px 0px;
+}
+
+.FinalLabel {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 12px;
+}
+
+.AppliedCaption {
+  position: absolute;
+  bottom: 0px;
+  left: 0px;
+  right: 0px;
+  background: rgba(0, 0, 0, 0.8);
   padding: 16px;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.3);
-  text-align: center;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 0px 0px 16px 16px;
 }
 
-.PreviewActionButton.Primary {
-  background: #ff6b6b;
-  border: 1px solid #ff6b6b;
-}
-
-.PreviewActionButton text {
+.FinalCaptionText {
   color: white;
-  font-weight: 600;
+  font-size: 14px;
+  line-height: 1.3;
+}
+
+.DownloadOptions {
+  width: 100%;
+  max-width: 300px;
+}
+
+.DownloadButton {
+  width: 100%;
+  padding: 18px;
+  background: #4CAF50;
+  border-radius: 16px;
+  text-align: center;
+  margin-bottom: 20px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.DownloadButton:hover {
+  background: #45a049;
+}
+
+.DownloadButton text {
+  color: white;
+  font-weight: bold;
   font-size: 16px;
 }
 
-.PreviewActionButton:active {
-  transform: scale(0.98);
-  opacity: 0.8;
+.ShareOptions {
+  display: flex;
+  gap: 12px;
 }
 
-/* Responsive adjustments */
+.ShareButton {
+  flex: 1;
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  text-align: center;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.ShareButton:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.ShareButton text {
+  color: white;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* Action Buttons - FIXED ALIGNMENT */
+.PreviewActions, .SuccessActions {
+  display: flex;
+  gap: 16px;
+  width: 100%;
+  max-width: 320px;
+  margin-top: 20px;
+  justify-content: stretch; /* Make buttons fill the space */
+}
+
+.ActionButton {
+  flex: 1;
+  padding: 16px;
+  border-radius: 12px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-sizing: border-box; /* Include padding in width calculation */
+}
+
+.ActionButton.Primary {
+  background: #ff6b6b;
+}
+
+.ActionButton.Primary:hover {
+  background: #ff5252;
+}
+
+.ActionButton.Secondary {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.ActionButton.Secondary:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.ActionButton text {
+  color: white;
+  font-weight: bold;
+  font-size: 16px;
+  display: block;
+  width: 100%;
+}
+
+/* Responsive */
 @media (max-width: 400px) {
-  .CaptionCard {
-    width: 280px;
-    height: 440px;
-  }
-  
-  .NavigationControls {
-    width: 280px;
-  }
-  
   .CaptionPreview {
-    padding: 15px;
+    padding: 16px;
+  }
+
+  .VideoPreview, .CaptionNavigation {
+    width: 280px;
+  }
+  
+  .FinalPreview {
+    width: 260px;
+    height: 360px;
+  }
+  
+  .UploadBox {
+    width: 260px;
+    height: 180px;
+  }
+  
+  .UploadSection, .ProcessingSection, .PreviewContainer, .DownloadSection {
+    max-width: 320px;
+  }
+  
+  .PreviewActions, .SuccessActions {
+    max-width: 280px;
   }
 }

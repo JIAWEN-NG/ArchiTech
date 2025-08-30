@@ -1,138 +1,90 @@
 import { useState, useCallback } from '@lynx-js/react'
 import './App.css'
-import arrow from './assets/arrow.png'
-import lynxLogo from './assets/lynx-logo.png'
-import reactLynxLogo from './assets/react-logo.png'
 
+// Import pages
+import PersonalizedPage from './components/PersonalizedPage.tsx'
 import { ChatPanel } from './components/ChatPanel.js'
 import { SuggestionsDevPanel } from './components/SuggestionsDevPanel.tsx'
 
-export function App() {
-  const [alterLogo, setAlterLogo] = useState(false)
-  const [page, setPage] = useState<'home' | 'aiChat' | 'dev'>('home')
+export function App(props: { onRender?: () => void }) {
+  const [page, setPage] = useState<'home' | 'aiChat' | 'personalized' | 'dev'>('home')
 
-  const onTapLogo = useCallback(() => {
-    setAlterLogo((prev) => !prev)
-  }, [])
+  props.onRender?.()
 
-  const goToAIChat = useCallback(() => {
-    setPage('aiChat')
-  }, [])
+  const goToAIChat = useCallback(() => setPage('aiChat'), [])
+  const goToPersonalized = useCallback(() => setPage('personalized'), [])
+  const goToDev = useCallback(() => setPage('dev'), [])
+  const goBack = useCallback(() => setPage('home'), [])
 
-  const goToDev = useCallback(() => {
-    setPage('dev')
-  }, [])
-
+  // --- AI Chat Page ---
   if (page === 'aiChat') {
     return (
-      <view style={{ flex: 1 }}>
-        {/* Back button */}
-        <view
-          bindtap={() => setPage('home')}
-          style={{
-            padding: 12,
-            background: '#007bff',
-            borderRadius: 8,
-            margin: 10,
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}
-        >
-          <text style={{ color: '#fff', fontWeight: 'bold', textAlign: 'center' }}>
-            Back
-          </text>
+      <view className='Background'>
+        <view className='PageContainer'>
+          <view bindtap={goBack} className='BackButton'>
+            <text>Back</text>
+          </view>
+          <ChatPanel />
         </view>
-
-        {/* Your ChatPanel component */}
-        <ChatPanel onBack={function (): void {
-          throw new Error('Function not implemented.')
-        }} />
       </view>
-
     )
   }
-  // --- Developer Tools page (NEW) ---
+
+  // --- Personalized Suggestions Page ---
+  if (page === 'personalized') {
+    return (
+      <view className='Background'>
+        <view className='PageContainer'>
+          <view bindtap={goBack} className='BackButton'>
+            <text>Back</text>
+          </view>
+          <PersonalizedPage />
+        </view>
+      </view>
+    )
+  }
+
+  // --- Developer Tools Page ---
   if (page === 'dev') {
     return (
-      <view style={{ flex: 1 }}>
-        {/* Back button */}
-        <view
-          bindtap={() => setPage('home')}
-          style={{
-            padding: 12,
-            background: '#007bff',
-            borderRadius: 8,
-            margin: 10,
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}
-        >
-          <text style={{ color: '#fff', fontWeight: 'bold', textAlign: 'center' }}>
-            Back
-          </text>
+      <view className='Background'>
+        <view className='PageContainer'>
+          <view bindtap={goBack} className='BackButton'>
+            <text>Back</text>
+          </view>
+          <SuggestionsDevPanel />
         </view>
-
-        {/* Dev/Test UI that calls your backend */}
-        <SuggestionsDevPanel />
       </view>
     )
   }
 
-  //homepage 
-
+  // --- Home Page ---
   return (
-    <view style={{ flex: 1 }}>
-      <view className="Background" />
-      <view className="App">
-        <view className="Banner">
-          <view bindtap={onTapLogo} className="Logo">
-            <image src={alterLogo ? reactLynxLogo : lynxLogo} className="Logo--lynx" />
-          </view>
-          <text className="Title">React</text>
-          <text className="Subtitle">on Lynx</text>
-        </view>
-
-        <view className="Content">
-          <image src={arrow} className="Arrow" />
-          <text className="Description">Tap the logo and have fun!</text>
-
-          {/* AI Chat Button */}
-          <view
-            bindtap={goToAIChat}
-            style={{
-              marginTop: 20,
-              padding: 12,
-              background: '#28a745',
-              borderRadius: 8,
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}
-          >
-            <text style={{ color: '#fff', fontWeight: 'bold', textAlign: 'center' }}>
-              Go to AI Chat
+    <view className='Background'>
+      <view className='PageContainer'>
+        <view className='App'>
+          <view className='Content'>
+            <text className='Title'>TikTok AI Copilot</text>
+            <text className='Description'>
+              Generate captions and trend insights instantly!
             </text>
+
+            {/* AI Chat Button */}
+            <view className='Button' bindtap={goToAIChat}>
+              <text>Go to AI Chat</text>
+            </view>
+
+            {/* Personalized Suggestions Button */}
+            <view className='Button' bindtap={goToPersonalized}>
+              <text>Go to Personalized Suggestions</text>
+            </view>
+
+            {/* Developer Tools Button */}
+            <view className='Button' style={{ backgroundColor: '#6c757d' }} bindtap={goToDev}>
+              <text>Developer Tools</text>
+            </view>
           </view>
         </view>
-        
-         {/* Developer Tools Button (NEW) */}
-          <view
-            bindtap={goToDev}
-            style={{
-              marginTop: 12,
-              padding: 12,
-              background: '#6c757d',
-              borderRadius: 8,
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}
-          >
-            <text style={{ color: '#fff', fontWeight: 'bold', textAlign: 'center' }}>
-              Developer Tools
-            </text>
-          </view>
-        
-
-        <view style={{ flex: 1 }} />
       </view>
     </view>
   )

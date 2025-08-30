@@ -1,129 +1,116 @@
-import { useState } from "@lynx-js/react";
+import { useState, useCallback, useEffect } from "@lynx-js/react";
+import "../PersonalizedPage.css"; // Reuse dark mobile theme styles
 
-export function ChatPanel(props: { onBack: () => void }) {
+export function ChatPanel() {
   const [messages, setMessages] = useState<{ text: string; from: "user" | "bot" }[]>([
     { text: "Hello! How can I help you today?", from: "bot" },
   ]);
-
   const [inputValue, setInputValue] = useState("");
-  const [suggestions] = useState<string[]>(["Hi!", "Tell me a joke", "What's the weather?"]);
+  const [suggestions] = useState(["Hi!", "Tell me a joke", "What's the weather?"]);
 
-  // Send message function
-  const sendMessage = () => {
+  useEffect(() => {
+    console.info("AI Chat Loaded");
+  }, []);
+
+  const sendMessage = useCallback(() => {
     if (!inputValue.trim()) return;
 
     const userMsg = { text: inputValue, from: "user" } as const;
     setMessages((prev) => [...prev, userMsg]);
     setInputValue("");
 
-    // Simulate backend reply after 1s
+    // Simulate bot reply
     setTimeout(() => {
       const botMsg = { text: "Bot reply: " + userMsg.text, from: "bot" } as const;
       setMessages((prev) => [...prev, botMsg]);
     }, 1000);
-  };
+  }, [inputValue]);
 
-  const onSuggestionClick = (s: string) => {
-    setInputValue(s);
-  };
+  const onSuggestionClick = useCallback((s: string) => setInputValue(s), []);
 
   return (
-    <view style={{ flex: 1, background: "#fff", justifyContent: "flex-end" }}>
-      {/* Messages list */}
+    <view className="PageBackground">
+      {/* Header */}
+      <view className="PageHeader">
+        <text className="PageTitle">AI Chat</text>
+        <text className="PageSubtitle">Chat with your AI assistant</text>
+      </view>
+
+      {/* Messages List */}
       <scroll-view
         scroll-orientation="vertical"
-        style={{ flex: 1, padding: "10px" }}
+        className="SuggestionsWrapper"
+        style={{ padding: "6px" }}
       >
         {messages.map((msg, idx) => (
           <view
             key={idx}
+            className="MessageBubble"
             style={{
-              background: msg.from === "user" ? "#DCF8C6" : "#EEE",
-              alignSelf: msg.from === "user" ? "flex-end" : "flex-start",
-              padding: "10px",
-              borderRadius: "15px",
-              marginBottom: "5px",
+              background: msg.from === "user" ? "#d4f1c5" : "#f0f0f0",
+              color: "#000",
+              padding: "10px 14px",
+              borderRadius: "16px",
+              marginBottom: "6px",
               maxWidth: "70%",
+              marginLeft: msg.from === "user" ? "auto" : "0",
+              marginRight: msg.from === "user" ? "0" : "auto",
+              boxShadow: "0 2px 4px rgba(0,0,0,0.15)",
             }}
           >
-            <text style={{ color: "#000" }}>{msg.text}</text>
+            <text>{msg.text}</text>
           </view>
         ))}
       </scroll-view>
 
-      {/* Suggestions */}
-      <view style={{ flexDirection: "row", flexWrap: "wrap", padding: "5px", gap: "5px" }}>
+      {/* Suggestions Chips */}
+      <view
+        className="SuggestionsWrapper"
+        style={{ flexDirection: "row", flexWrap: "wrap", gap: "4px", padding: "4px" }}
+      >
         {suggestions.map((s, i) => (
           <view
             key={i}
-            bindtap={() => onSuggestionClick(s)}
+            className="ActionBtn"
             style={{
-              background: "#eee",
-              padding: "8px 12px",
+              background: "#e0e0e0",
+              padding: "6px 10px",
               borderRadius: "20px",
-              justifyContent: "center",
-              alignItems: "center",
             }}
+            bindtap={() => onSuggestionClick(s)}
           >
             <text style={{ color: "#000" }}>{s}</text>
           </view>
         ))}
       </view>
 
-      {/* Footer: Back + Input + Send fixed bottom */}
+      {/* Input + Send */}
       <view
-        style={{
-          flexDirection: "row",
-          padding: "10px",
-          background: "#fff",
-          borderTopWidth: "1px",
-          borderTopColor: "#ccc",
-          alignItems: "center",
-        }}
+        className="ActionBtn"
+        style={{ flexDirection: "row", gap: "4px", marginTop: "8px" }}
       >
-        {/* Back Button */}
         <view
-          bindtap={props.onBack}
-          style={{
-            background: "#ccc",
-            padding: "10px 15px",
-            borderRadius: "20px",
-            justifyContent: "center",
-            alignItems: "center",
-            marginRight: "5px",
-          }}
-        >
-          <text style={{ color: "#000", fontWeight: "bold" }}>Back</text>
-        </view>
-
-        {/* Fake Input */}
-        <view
+          className="SuggestionsWrapper"
           style={{
             flex: 1,
             background: "#f0f0f0",
-            padding: "10px",
+            padding: "8px",
             borderRadius: "20px",
-            justifyContent: "center",
           }}
-          bindtap={() => {
-            const typed = prompt("Type your message:") || "";
-            setInputValue(typed);
-          }}
+          bindtap={() => setInputValue(prompt("Type your message:") || "")}
         >
           <text style={{ color: "#000" }}>{inputValue || "Type your message..."}</text>
         </view>
-
-        {/* Send Button */}
         <view
-          bindtap={sendMessage}
+          className="ActionBtn"
           style={{
             background: "#4CAF50",
-            padding: "10px 15px",
+            padding: "8px 16px",
             borderRadius: "20px",
             justifyContent: "center",
             alignItems: "center",
-            marginLeft: "5px",
           }}
+          bindtap={sendMessage}
         >
           <text style={{ color: "#fff", fontWeight: "bold" }}>Send</text>
         </view>
